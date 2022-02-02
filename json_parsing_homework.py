@@ -8,6 +8,9 @@ key1 = "messages"
 key2 = "message"
 
 if key1 in obj:
-    print(obj[key1][1][key2])
+    if key2 in obj[key1][1]:
+        print(obj[key1][1][key2])
+    else:
+        print(f"Ключа {key2} в JSON нет")
 else:
     print(f"Ключа {key1} в JSON нет")
