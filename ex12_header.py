@@ -9,4 +9,4 @@ class TestFirstAPI:
         actual_val = response.headers['x-secret-homework-header']
 
         print(response.headers)
-        assert actual_val == expected_val, f"Cookie values are not equal"
+        assert actual_val == expected_val, f"В ответе нет заголовка x-secret-homework-header"
