@@ -1,65 +1,60 @@
 import requests
 import pytest
 
-class TestUserAuth:
-    def test_auth_user(self):
-        data = {
-            'email':'vinkotov@example.com',
-            'password':'1234'
-        }
+class TestUserAgent:
 
-        response1 = requests.post("https://playground.learnqa.ru/api/user/login", data=data)
-
-        assert "auth_sid" in response1.cookies, "There is no auth cookie in the response"
-        assert "x-csrf-token" in response1.headers, "There is no CSRF token in the response"
-        assert "user_id" in response1.json(), "There is no user id in the response"
-
-        auth_sid = response1.cookies.get("auth_sid")
-        token = response1.headers.get("x-csrf-token")
-        user_id_from_auth_method = response1.json()["user_id"]
-
-        response2 = requests.get("https://playground.learnqa.ru/api/user/auth",
-                                 headers={"x-csrf-token":token},
-                                 cookies = {"auth_sid":auth_sid}
-                                 )
-
-        assert "user_id" in response2.json(), "There is no user id in the second response"
-        user_id_from_check_method = response2.json()["user_id"]
-        print(user_id_from_check_method)
-
-        assert user_id_from_auth_method == user_id_from_check_method, "User ids are not equal"
-
-    exclude_params = [
-        ("no_cookie"),
-        ("no_token")
+    url = "https://playground.learnqa.ru/ajax/api/user_agent_check"
+    data = [
+        ({"User-Agent":"Mozilla/5.0 (Linux; U; Android 4.0.2; en-us; Galaxy Nexus Build/ICL53F) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30",
+          "expected_platform": "Mobile",
+          "expected_browser": "No",
+          "expected_device":"Android"
+          }),
+        ({"User-Agent":"Mozilla/5.0 (iPad; CPU OS 13_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/91.0.4472.77 Mobile/15E148 Safari/604.1",
+          "expected_platform": "Mobile",
+          "expected_browser": "Chrome",
+          "expected_device": "iOS"
+          }),
+        ({"User-Agent":"Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "expected_platform": "Googlebot",
+          "expected_browser": "Unknown",
+          "expected_device": "Unknown"
+          }),
+        ({"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36 Edg/91.0.100.0",
+          "expected_platform": "Web",
+          "expected_browser": "Chrome",
+          "expected_device": "No"
+          }),
+        ({"User-Agent":"Mozilla/5.0 (iPad; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1",
+          "expected_platform": "Mobile",
+          "expected_browser": "No",
+          "expected_device": "iPhone"
+          })
     ]
 
-    @pytest.mark.parametrize('condition', exclude_params)
-    def test_negative_auth_check(self, condition):
-        data = {
-            'email': 'vinkotov@example.com',
-            'password': '1234'
-        }
+    @pytest.mark.parametrize('data', data)
+    def test_user_agent(self, data):
+        user_agent = data["User-Agent"]
+        expected_platform = data["expected_platform"]
+        expected_browser = data["expected_browser"]
+        expected_device = data ["expected_device"]
 
-        response1 = requests.post("https://playground.learnqa.ru/api/user/login", data=data)
+        response = requests.get(self.url, headers={'User-Agent': user_agent})
+        response_dict = response.json()
+        assert 'platform' in response_dict, "There is no platform in the response"
+        assert 'browser' in response_dict, "There is no browser in the response"
+        assert 'device' in response_dict, "There is no device in the response"
 
-        assert "auth_sid" in response1.cookies, "There is no auth cookie in the response"
-        assert "x-csrf-token" in response1.headers, "There is no CSRF token in the response"
-        assert "user_id" in response1.json(), "There is no user id in the response"
+        actual_platform = response_dict['platform']
+        actual_browser = response_dict['browser']
+        actual_device = response_dict['device']
 
-        auth_sid = response1.cookies.get("auth_sid")
-        token = response1.headers.get("x-csrf-token")
-
-        if condition == "no_cookie":
-            response2 = requests.get("https://playground.learnqa.ru/api/user/auth", headers = {"x-csrf-token":token})
-        else:
-            response2 = requests.get("https://playground.learnqa.ru/api/user/auth", cookies={"auth_sid": auth_sid})
-
-        assert "user_id" in response1.json(), "There is no user id in the second response"
-
-        user_id_from_check_method = response2.json()["user_id"]
-
-        assert user_id_from_check_method == 0, f"User is authorized with condition {condition}"
+        assert expected_platform == actual_platform, f"Platform is not correct. Expected: {expected_platform}. " \
+                                                     f"Actual: {actual_platform}"
+        assert expected_browser == actual_browser, f"Browser is not correct. Expected: {expected_browser}. " \
+                                                   f"Actual: {actual_browser}"
+        assert expected_device == actual_device, f"Device is not correct. Expected: {expected_device}. " \
+                                                 f"Actual: {actual_device}"
 
 
 
