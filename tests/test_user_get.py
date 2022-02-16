@@ -5,11 +5,6 @@ from lib.base_case import BaseCase
 from lib.assertions import Assertions
 
 class TestUserGet(BaseCase):
-    def setup(self):
-        base_part = "learnqa"
-        domain = "example.com"
-        random_part = datetime.now().strftime("%m%d%Y%H%M%S")
-        self.email = f"{base_part}{random_part}@{domain}"
 
     def test_get_user_details_not_auth(self):
         response = requests.get("https://playground.learnqa.ru/api/user/2")
@@ -50,13 +45,7 @@ class TestUserGet(BaseCase):
         token = self.get_header(response1, "x-csrf-token")
 
 
-        data2 = {
-            'password': '123',
-            'username': 'learnqa',
-            'firstName': 'learnqa',
-            'lastName': 'learnqa',
-            'email': self.email
-        }
+        data2 = self.prepare_registration_data()
 
         response2 = requests.post("https://playground.learnqa.ru/api/user/", data=data2)
         user_id = self.get_json_value(response2, "id")

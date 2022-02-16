@@ -13,20 +13,8 @@ class TestUserRegister(BaseCase):
         ("password")
     ]
 
-    def setup(self):
-        base_part = "learnqa"
-        domain = "example.com"
-        random_part = datetime.now().strftime("%m%d%Y%H%M%S")
-        self.email = f"{base_part}{random_part}@{domain}"
-
     def test_create_user_successfully(self):
-        data = {
-            'password': '123',
-            'username': 'learnqa',
-            'firstName': 'learnqa',
-            'lastName': 'learnqa',
-            'email': self.email
-        }
+        data =self.prepare_registration_data()
 
         response = requests.post("https://playground.learnqa.ru/api/user/", data=data)
         Assertions.assert_code_status(response, 200)
@@ -34,13 +22,7 @@ class TestUserRegister(BaseCase):
 
     def test_create_user_with_existing_email(self):
         email = 'vinkotov@example.com'
-        data = {
-            'password': '123',
-            'username': 'learnqa',
-            'firstName': 'learnqa',
-            'lastName': 'learnqa',
-            'email': email
-        }
+        data = self.prepare_registration_data(email)
 
         response = requests.post("https://playground.learnqa.ru/api/user/", data=data)
 
@@ -64,13 +46,7 @@ class TestUserRegister(BaseCase):
 
     @pytest.mark.parametrize('condition', missed_params)
     def test_create_user_without_field(self, condition):
-        data = {
-            'password': '123',
-            'username': 'learnqa',
-            'firstName': 'learnqa',
-            'lastName': 'learnqa',
-            'email': self.email
-        }
+        data =self.prepare_registration_data()
 
         data.pop(condition)
         data_without_parameter = data
@@ -83,28 +59,18 @@ class TestUserRegister(BaseCase):
             f"Unexpected response content {response.content} with missed param: {condition}"
 
     def test_create_user_with_short_username(self):
-        data = {
-            'password': '123',
-            'username': 'a',
-            'firstName': 'learnqa',
-            'lastName': 'learnqa',
-            'email': self.email
-        }
+        data = self.prepare_registration_data()
+        data['firstName'] = 'a'
 
         response = requests.post("https://playground.learnqa.ru/api/user/", data=data)
         Assertions.assert_code_status(response, 400)
-        assert response.content.decode("utf-8") == f"The value of 'username' field is too short"
+        assert response.content.decode("utf-8") == f"The value of 'firstName' field is too short"
 
     def test_create_user_with_long_username(self):
-        username = ''.join('a' for i in range(251))
-        data = {
-            'password': '123',
-            'username': username,
-            'firstName': 'learnqa',
-            'lastName': 'learnqa',
-            'email': self.email
-        }
+
+        data = self.prepare_registration_data()
+        data['firstName'] = ''.join('a' for i in range(251))
 
         response = requests.post("https://playground.learnqa.ru/api/user/", data=data)
         Assertions.assert_code_status(response, 400)
-        assert response.content.decode("utf-8") == f"The value of 'username' field is too long"
+        assert response.content.decode("utf-8") == f"The value of 'firstName' field is too long"
