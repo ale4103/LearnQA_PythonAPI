@@ -119,6 +119,6 @@ class TestUserDelete(BaseCase):
         Assertions.assert_json_value_by_name(response6, "firstName", first_name1,
                                              "Wrong firstName of the user 1 after delete by another user")
         Assertions.assert_json_value_by_name(response6, "lastName", last_name1,
-                                             "Wrong firstName of the user 1 after delete by another user")
+                                             "Wrong lastName of the user 1 after delete by another user")
         Assertions.assert_json_value_by_name(response6, "email", email1,
-                                             "Wrong firstName of the user 1 after delete by another user")
+                                             "Wrong email of the user 1 after delete by another user")
