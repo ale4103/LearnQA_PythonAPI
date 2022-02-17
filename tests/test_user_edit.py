@@ -1,9 +1,15 @@
+import allure
 from datetime import datetime
 from lib.base_case import BaseCase
 from lib.assertions import Assertions
 from lib.my_requests import MyRequests
 
+@allure.epic("Check edit cases")
 class TestUserEdit(BaseCase):
+
+    @allure.description("This test edit of created user")
+    @allure.severity(allure.severity_level.CRITICAL)
+    @allure.story("positive_case")
     def test_edit_just_created_user(self):
         # Register
         register_data = self.prepare_registration_data()
@@ -47,6 +53,9 @@ class TestUserEdit(BaseCase):
 
         Assertions.assert_json_value_by_name(response4, "firstName", new_name, "Wrong name of the user after edit")
 
+    @allure.description("This test edit of non-authorized user")
+    @allure.severity(allure.severity_level.CRITICAL)
+    @allure.story("negative_case")
     def test_edit_non_authorized_user(self):
         # Register
         register_data = self.prepare_registration_data()
@@ -85,6 +94,9 @@ class TestUserEdit(BaseCase):
         Assertions.assert_json_value_by_name(response4, "firstName", first_name,
                                              "Wrong name of the user after edit without authorization")
 
+    @allure.description("This test edit by another user")
+    @allure.severity(allure.severity_level.CRITICAL)
+    @allure.story("negative_case")
     def test_edit_user_by_another_user(self):
         # Register user1
         register_data1 = self.prepare_registration_data()
@@ -135,6 +147,9 @@ class TestUserEdit(BaseCase):
         Assertions.assert_json_value_by_name(response6, "firstName", first_name1,
                                              "Wrong name of the user 1 after edit by another user")
 
+    @allure.description("This test edit of email by incorrect value")
+    @allure.severity(allure.severity_level.NORMAL)
+    @allure.story("negative_case")
     def test_edit_email_by_incorrect_value(self):
         # Register
         register_data = self.prepare_registration_data()
@@ -176,6 +191,9 @@ class TestUserEdit(BaseCase):
         Assertions.assert_json_value_by_name(response4, "email", email,
                                              "Wrong email after edit")
 
+    @allure.description("This test edit of name by incorrect short value")
+    @allure.severity(allure.severity_level.NORMAL)
+    @allure.story("negative_case")
     def test_edit_firstName_by_short_value(self):
         # Register
         register_data = self.prepare_registration_data()
